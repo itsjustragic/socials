@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- Improved viewport: supports full-bleed on iOS notch and prevents weird zooming -->
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>ItzJusTragic</title>
   <meta name="description" content="All my socials."/>
 
@@ -23,33 +24,51 @@
     --soft-white: rgba(255,255,255,0.92);
     --shadow: rgba(0, 255, 106, 0.08);
     --glass-glow: rgba(0,255,106,0.14);
+
+    /* scale values for mobile-friendly sizing */
+    --card-max-width: 920px;
+    --card-padding: 28px;
+    --avatar-size: 96px;
   }
 
   @font-face { font-family: "XTerminus"; src: local("Consolas"), local("Courier New"), local("monospace"); }
-  html,body{ height:100%; margin:0; padding:0; background:var(--bg); color:var(--soft-white); font-family: "XTerminus", monospace; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; overflow:hidden; }
-  #app { position:relative; height:100vh; width:100vw; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:18px; padding:24px; box-sizing:border-box; }
 
-  #matrix { position:fixed; inset:0; z-index:0; width:100%; height:100%; display:block; background:linear-gradient(180deg, rgba(0,0,0,0.66), rgba(0,0,0,0.66)); mix-blend-mode:normal; opacity:0; transition:opacity 420ms ease; }
+  /* Use min-height with dynamic viewport unit to avoid mobile address-bar layout jump */
+  html,body{ min-height:100dvh; height:auto; margin:0; padding:0; background:var(--bg); color:var(--soft-white); font-family: "XTerminus", monospace; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; /* allow scrolling on mobile if keyboard opens */ overflow:auto; -webkit-text-size-adjust:100%; }
+
+  /* use safe-area-inset to avoid notch overlap on iPhones with notches */
+  #app { position:relative; min-height:100dvh; width:100%; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:18px; padding: calc(24px + env(safe-area-inset-top)) calc(24px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)); box-sizing:border-box; }
+
+  #matrix { position:fixed; inset:0; z-index:0; width:100%; height:100%; display:block; background:linear-gradient(180deg, rgba(0,0,0,0.66), rgba(0,0,0,0.66)); mix-blend-mode:normal; opacity:0; transition:opacity 420ms ease; pointer-events:none; }
 
   .crt-overlay { pointer-events:none; position:fixed; inset:0; z-index:2; mix-blend-mode:overlay; opacity:0; transition:opacity 420ms ease; }
   .crt-overlay:before{ content:""; position:absolute; inset:0; background:radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.6) 100%); opacity:0.8; }
   .scanlines { position:absolute; inset:0; background-image: linear-gradient(transparent 90%, rgba(0,0,0,0.25) 100%); background-size: 100% 2px; opacity:0.12; mix-blend-mode:overlay; }
   .center-glow { position:absolute; width:70vw; height:70vh; left:50%; top:50%; transform:translate(-50%, -50%); background: radial-gradient(circle at center, rgba(0,255,106,0.06), transparent 40%); filter:blur(28px); opacity:0.9; }
 
-  .card { position:relative; z-index:3; width:min(920px, 92%); max-width:920px; min-width:320px; padding:28px; box-sizing:border-box; border-radius:18px; background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.45)); border:1px solid rgba(0,255,106,0.08); box-shadow: 0 10px 40px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.02); display:flex; flex-direction:column; align-items:center; gap:18px; backdrop-filter: blur(8px) saturate(120%); transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms, opacity 360ms ease, transform 360ms ease; opacity:0; transform: translateY(12px) scale(0.996); pointer-events:none; }
+  .card { position:relative; z-index:3; width:min(var(--card-max-width), 92%); max-width:var(--card-max-width); min-width:260px; padding:var(--card-padding); box-sizing:border-box; border-radius:18px; background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.45)); border:1px solid rgba(0,255,106,0.08); box-shadow: 0 10px 40px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.02); display:flex; flex-direction:column; align-items:center; gap:18px; backdrop-filter: blur(8px) saturate(120%); transition: transform 220ms cubic-bezier(.2,.9,.2,1), box-shadow 220ms, opacity 360ms ease, transform 360ms ease; opacity:0; transform: translateY(12px) scale(0.996); pointer-events:none; }
 
   .card.revealed { opacity:1; transform:none; pointer-events:auto; }
 
-  .header { width:100%; display:flex; gap:16px; align-items:center; justify-content:center; flex-direction:column; }
-  .avatar { width:96px; height:96px; border-radius:12px; overflow:hidden; border:2px solid rgba(0,255,106,0.12); box-shadow: 0 4px 20px rgba(0,255,106,0.04); }
+  .header { width:100%; display:flex; gap:12px; align-items:center; justify-content:center; flex-direction:column; }
+  .avatar { width:var(--avatar-size); height:var(--avatar-size); border-radius:12px; overflow:hidden; border:2px solid rgba(0,255,106,0.12); box-shadow: 0 4px 20px rgba(0,255,106,0.04); }
   .avatar img { width:100%; height:100%; object-fit:cover; display:block; }
-  .title { display:flex; align-items:center; gap:12px; color:var(--neon); letter-spacing:1px; font-size:28px; text-shadow: 0 0 10px rgba(0,255,106,0.26), 0 0 24px rgba(0,255,106,0.06); margin-top:6px; justify-content:center; }
+  /* responsive title sizing using clamp */
+  .title { display:flex; align-items:center; gap:12px; color:var(--neon); letter-spacing:1px; font-size:clamp(18px, 3.2vw, 28px); text-shadow: 0 0 10px rgba(0,255,106,0.26), 0 0 24px rgba(0,255,106,0.06); margin-top:6px; justify-content:center; }
   .subtitle { color:var(--muted); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-top:2px; opacity:0.8; }
   .icon-row { display:flex; gap:10px; align-items:center; justify-content:center; opacity:0.95; }
 
   .links { width:100%; display:flex; gap:12px; align-items:center; justify-content:center; flex-direction:column; padding:8px 12px; }
-  .link { width:100%; max-width:720px; display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:12px; background: linear-gradient(180deg, rgba(0,0,0,0.34), rgba(0,0,0,0.12)); border:1px solid rgba(0,255,106,0.04); box-shadow: 0 6px 22px rgba(0,0,0,0.4); transition: transform 160ms, box-shadow 160ms, opacity 420ms; cursor:pointer; text-decoration:none; color:var(--soft-white); opacity:0; transform: translateY(8px); }
+  /* Make links touch-friendly: larger tap targets on mobile and allow scroll if many links */
+  .links {
+    max-height: calc(100dvh - 320px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 8px;
+  }
+  .link { width:100%; max-width:720px; display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:12px; background: linear-gradient(180deg, rgba(0,0,0,0.34), rgba(0,0,0,0.12)); border:1px solid rgba(0,255,106,0.04); box-shadow: 0 6px 22px rgba(0,0,0,0.4); transition: transform 160ms, box-shadow 160ms, opacity 420ms; cursor:pointer; text-decoration:none; color:var(--soft-white); opacity:0; transform: translateY(8px); touch-action: manipulation; }
   .link.revealed { opacity:1; transform:none; }
+  /* Remove hover transforms on touch devices (added later in media queries) */
   .link:hover { transform: translateY(-4px); box-shadow: 0 26px 60px rgba(0,255,106,0.06); border-color: rgba(0,255,106,0.12); }
   .link .icon { width:42px; height:42px; border-radius:8px; background:rgba(0,0,0,0.4); display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.02); overflow:hidden; }
   .link .icon img { width:26px; height:26px; object-fit:contain; filter: drop-shadow(0 0 2px rgba(0,255,106,0.24)); }
@@ -95,28 +114,50 @@
           0 0 8px rgba(var(--neon-rgba), 0.85),
           0 0 18px rgba(var(--neon-rgba), 0.45),
           0 0 36px rgba(var(--neon-rgba), 0.18);
-        /* subtle stroke to make glow pop on darker backgrounds */
         -webkit-text-stroke: 0.4px rgba(0,0,0,0.15);
       }
 
-      /* keep icon line glow consistent with the text */
       .card .icon-row svg path {
         stroke: rgba(var(--neon-rgba), 0.75);
         filter: drop-shadow(0 0 6px rgba(var(--neon-rgba), 0.22));
       }
 
-      /* optional: a faint outer glow on the avatar container to match the theme */
       .card .avatar {
         box-shadow: 0 0 12px rgba(var(--neon-rgba), 0.08), inset 0 0 6px rgba(var(--neon-rgba), 0.03);
       }
-
 
   #enterOverlay { position:fixed; inset:0; z-index:9998; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg, rgba(0,0,0,0.66), rgba(0,0,0,0.66)); }
   #enterBtn { font-family: "XTerminus", monospace; font-size:20px; padding:24px 40px; border-radius:14px; background:rgba(0,0,0,0.64); color:var(--neon); border:2px solid rgba(0,255,106,0.08); cursor:pointer; box-shadow: 0 10px 40px rgba(0,255,106,0.06); text-transform:none; letter-spacing:1px; }
 
   .hidden { display:none !important; opacity:0 !important; pointer-events:none !important; }
 
-  @media (max-width:640px){ .volume { width:160px; } .link { padding:10px; } .avatar { width:72px; height:72px; border-radius:10px; } .title { font-size:20px; } }
+  /* Mobile-specific tweaks */
+  @media (max-width: 640px){
+    :root { --card-padding: 16px; --avatar-size: 72px; }
+    .volume { width:160px; }
+    .link { padding:10px; gap:10px; border-radius:10px; }
+    .icon-row { margin-top:6px; }
+    .title { font-size:20px; }
+    .footer { font-size:11px; }
+    .card { border-radius:14px; padding:16px; }
+    .player { gap:8px; }
+    .volume input[type=range] { width:110px; }
+    .links { max-height: calc(100dvh - 280px); }
+  }
+
+  /* Remove hover transforms for touch devices and prefer larger taps */
+  @media (hover: none) {
+    .link:hover { transform:none; box-shadow:none; }
+    .link { padding:14px; }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .title { animation: none !important; transition: none !important; }
+    .card, .link { transition: none !important; }
+    #matrix { transition: none !important; }
+  }
+
   @keyframes neonPulse { 0% { text-shadow: 0 0 6px rgba(0,255,106,0.08), 0 0 16px rgba(0,255,106,0.03); transform: scale(1); } 50% { text-shadow: 0 0 12px rgba(0,255,106,0.18), 0 0 28px rgba(0,255,106,0.08); transform: scale(1.02); } 100% { text-shadow: 0 0 6px rgba(0,255,106,0.08), 0 0 16px rgba(0,255,106,0.03); transform: scale(1); } }
   .title { animation: neonPulse 3.6s infinite linear; }
   .link:focus { outline:2px dashed rgba(0,255,106,0.14); outline-offset:4px; }
@@ -130,8 +171,6 @@
     <div class="scanlines"></div>
     <div class="center-glow"></div>
   </div>
-
-
 
   <main class="card" role="region" aria-label="Profile card">
     <header class="header">
@@ -229,21 +268,53 @@
 const $ = (sel, ctx=document) => ctx.querySelector(sel);
 const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
 
-/* ---------------- Matrix Rain ---------------- */
+/* ---------------- Small: detect mobile/touch/low-power devices ----------------
+   We'll use this to:
+    - reduce matrix font size & density on mobile
+    - avoid heavy visual effects on low-power or 'save-data' clients
+    - adapt some UI choices (bigger tap targets, disable hover effects)
+*/
+const isTouchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+const ua = navigator.userAgent || '';
+const isMobileUA = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(ua);
+const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const saveData = navigator.connection && (navigator.connection.saveData === true);
+
+const UI_CONSTRAINTS = {
+  reducedMotion: prefersReducedMotion,
+  lowPower: saveData || isMobileUA,
+  touch: isTouchDevice,
+};
+console.log('UI_CONSTRAINTS', UI_CONSTRAINTS);
+/* ------------------------------------------------------------------------------ */
+
+/* ---------------- Matrix Rain (optimized for mobile) ---------------- */
 (function matrixRain(){
   const canvas = document.getElementById('matrix');
   if(!canvas) return;
   const ctx = canvas.getContext('2d');
+
+  // choose fontSize based on screen width + mobile
+  let fontSize = (window.innerWidth <= 420) ? 12 : 16;
+  // if device flagged as low-power, make it lighter
+  if(UI_CONSTRAINTS.lowPower) fontSize = Math.max(10, Math.floor(fontSize * 0.8));
+  // drastically reduce on very small screens
+  fontSize = Math.max(10, fontSize);
+
   let width = canvas.width = innerWidth;
   let height = canvas.height = innerHeight;
   const chars = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネへメレゲゼデベペオォコソトノホモヨョロヲゴゾドボポ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#$%^&*()<>/[]{}+-=';
-  const fontSize = 16;
   let columns = Math.floor(width / fontSize) + 2;
+
+  // Lower drop density for low-power/mobile
   let drops = new Array(columns).fill(0).map(()=>Math.floor(Math.random()*height/fontSize));
   let animationId = null;
   let running = false;
 
   function resize(){
+    // recompute font size if width changes significantly on mobile
+    fontSize = (window.innerWidth <= 420) ? 12 : 16;
+    if(UI_CONSTRAINTS.lowPower) fontSize = Math.max(10, Math.floor(fontSize * 0.8));
     width = canvas.width = innerWidth;
     height = canvas.height = innerHeight;
     columns = Math.floor(width / fontSize) + 2;
@@ -252,14 +323,15 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
   addEventListener('resize', resize);
 
   function loop(){
-    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    // fade a little slower on low-power to reduce paint frequency
+    ctx.fillStyle = UI_CONSTRAINTS.lowPower ? 'rgba(0,0,0,0.22)' : 'rgba(0,0,0,0.12)';
     ctx.fillRect(0,0,width,height);
     ctx.font = fontSize + 'px monospace';
     for(let i=0;i<drops.length;i++){
       const x = i * fontSize;
       const y = drops[i]*fontSize;
       const char = chars.charAt(Math.floor(Math.random()*chars.length));
-      ctx.fillStyle = 'rgba(0,255,106,' + (Math.random()*0.6 + 0.3) + ')';
+      ctx.fillStyle = 'rgba(0,255,106,' + (Math.random()*0.6 + 0.2) + ')';
       ctx.fillText(char, x, y);
       if(y > height && Math.random() > 0.975){
         drops[i] = 0;
@@ -271,6 +343,14 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
 
   function start(){
     if(running) return;
+    // If user prefers reduced motion or device is very low-power, keep the canvas hidden by default.
+    if(UI_CONSTRAINTS.reducedMotion || UI_CONSTRAINTS.lowPower){
+      // still allow user to toggle via the Toggle Rain button
+      canvas.style.opacity = '0';
+      document.querySelector('.crt-overlay').style.opacity = '0';
+      running = false;
+      return;
+    }
     running = true;
     canvas.style.opacity = '1';
     document.querySelector('.crt-overlay').style.opacity = '1';
@@ -284,31 +364,33 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     document.querySelector('.crt-overlay').style.opacity = '0';
   }
 
-  window.matrixController = { start, stop, isRunning: ()=>running };
+  // Expose control but don't auto-start on mobile/low-power unless explicitly toggled
+  window.matrixController = { start, stop, isRunning: ()=>running, forceStart: ()=>{
+    // bypass lowPower preference if user explicitly asks to start
+    if(!running){
+      running = true;
+      canvas.style.opacity = '1';
+      document.querySelector('.crt-overlay').style.opacity = '1';
+      loop();
+    }
+  } };
 })();
 
-/* ---------------- Audio (single file, robust loading + user-gesture start) ---------------- */
+/* ---------------- Audio (unchanged core logic) ---------------- */
 (function audioPlayer(){
   const audio = document.getElementById('bg-audio');
   const volumeSlider = document.getElementById('volumeSlider');
   const volLabel = document.getElementById('volLabel');
 
-  // ---------------- CONFIG: candidate sources (ordered by preference)
-  // put as many as you want — if there are multiple playable candidates, the script will
-  // use them as a playlist (looping). If only one candidate, it behaves as single source.
   const CANDIDATES = [
     { url: 'https://r2.guns.lol/7fdd2ffd-dcaa-41d0-93b1-5e4bc914206d.mp3', type: 'audio/mpeg' },
     { url: 'https://r2.guns.lol/97f40c6a-2261-4e77-8961-927cb56957e5.mp3', type: 'audio/mpeg' },
   ];
 
-  // If you prefer single mode even with multiple candidates, set PLAY_MODE = 'single'
-  // If you want playlist behavior set to 'playlist' (default auto chooses playlist if >1)
-  let PLAY_MODE = 'playlist'; // 'auto' | 'single' | 'playlist'
-
-  audio.loop = true; // note: in playlist mode we override loop behavior per-track by listening to 'ended'
+  let PLAY_MODE = 'playlist';
+  audio.loop = true;
   audio.preload = 'auto';
 
-  // small toast helper
   function showToast(msg, t=2200){
     let el = document.getElementById('bio-toast');
     if(!el){
@@ -332,7 +414,6 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     setTimeout(()=> el.style.opacity = '0', t);
   }
 
-  // update volume UI -> audio
   function setVolume(v){
     audio.volume = v;
     volLabel.textContent = Math.round(v*100) + '%';
@@ -341,24 +422,18 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
   setVolume(parseFloat(volumeSlider.value || 0.32));
   volumeSlider.addEventListener('input', e => setVolume(parseFloat(e.target.value)));
 
-  // diagnostics listeners
-  audio.addEventListener('error', () => {
-    console.error('Audio error event:', audio.error);
-    showToast('Audio error — check console', 2800);
-  });
+  audio.addEventListener('error', () => { console.error('Audio error event:', audio.error); showToast('Audio error — check console', 2800); });
   audio.addEventListener('stalled', ()=> console.warn('Audio stalled'));
   audio.addEventListener('abort', ()=> console.warn('Audio aborted'));
   audio.addEventListener('emptied', ()=> console.warn('Audio emptied'));
   audio.addEventListener('canplaythrough', ()=> console.log('canplaythrough fired — good'));
   audio.addEventListener('loadedmetadata', ()=> console.log('loadedmetadata'));
 
-  // playlist state
-  let playlist = [];          // array of URLs selected as playable
-  let currentIndex = 0;       // current track index
-  let playlistMode = false;   // whether we're treating playlist behavior
+  let playlist = [];
+  let currentIndex = 0;
+  let playlistMode = false;
   let endedListener = null;
 
-  // Checks whether the browser can decode the given MIME
   function mimeSupported(mime){
     try {
       const r = audio.canPlayType(mime);
@@ -368,80 +443,50 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     }
   }
 
-  // Try to set working sources from candidates.
-  // Returns array of candidate URLs that passed quick checks (HEAD ok or extension ok and mimeSupported).
   async function findAndLoadSources(){
-    // We will not append multiple <source> elements to <audio> here — instead we build the playlist array
     const loaded = [];
-
     for(const c of CANDIDATES){
-      // if a candidate has no url skip
       if(!c || !c.url) continue;
-
       if(!mimeSupported(c.type)){
         console.info('Skipping candidate (mime not supported by browser):', c.url, c.type);
         continue;
       }
-
-      // quick HEAD check where possible
+      // HEAD check - best-effort
       let ok = true;
       try {
         const res = await fetch(c.url, { method: 'HEAD', cache: 'no-cache' });
-        if(!res.ok){
-          console.warn('HEAD failed for', c.url, 'status', res.status);
-          ok = false;
-        } else {
-          // optional content-type sanity check
-          const ct = res.headers.get('Content-Type') || '';
-          if(ct && !ct.includes('audio') && !ct.includes('octet-stream')){
-            console.warn('HEAD returned unexpected Content-Type for', c.url, ct);
-            // still allow - sometimes hosts misreport; we'll accept if extension present
-          }
-        }
+        if(!res.ok) ok = false;
       } catch(err){
-        // HEAD might fail due to CORS or network — still attempt to include candidate for a later play attempt
-        console.info('HEAD request failed (CORS/network) for', c.url, err);
+        // ignore CORS/network HEAD errors, still attempt playback later
       }
-
       if(!ok) continue;
-
-      // quick attempt to load metadata by assigning src to a temp audio element? To avoid interfering with main audio,
-      // we will accept the candidate and defer real loading to playback time. This keeps things responsive.
       loaded.push(c.url);
     }
-
     return loaded;
   }
 
-  // set current audio.src to url and attach handlers
   function setAudioSrc(url){
-    // remove any <source> children to prevent conflict
     Array.from(audio.querySelectorAll('source')).forEach(s => s.remove());
     audio.src = url;
     try { audio.load(); } catch(e) { console.warn('audio.load() threw', e); }
   }
 
-  // Advance playlist index (with looping)
   function advanceIndex(){
     if(playlist.length === 0) return;
     currentIndex = (currentIndex + 1) % playlist.length;
   }
 
-  // Prepare ended listener for playlist behavior
   function preparePlaylistEndedHandler(){
-    // remove existing
     if(endedListener) {
       audio.removeEventListener('ended', endedListener);
       endedListener = null;
     }
     endedListener = async () => {
-      // advance and play next track
       advanceIndex();
       const next = playlist[currentIndex];
       console.log('Playlist advancing to', currentIndex, next);
       try {
         setAudioSrc(next);
-        // attempt to play next (no toast on success)
         await audio.play();
       } catch(err){
         console.warn('Failed to play next track in playlist:', err);
@@ -451,10 +496,8 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     audio.addEventListener('ended', endedListener);
   }
 
-  // Attempt to play in response to a user gesture (enter click)
   async function playFromUserGesture(){
     try {
-      // select playable sources
       const chosen = await findAndLoadSources();
       if(!chosen || chosen.length === 0){
         console.error('No supported audio sources found from candidates.');
@@ -462,27 +505,22 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
         return false;
       }
 
-      // Decide play mode
       if(PLAY_MODE === 'auto'){
         playlistMode = chosen.length > 1;
       } else {
         playlistMode = (PLAY_MODE === 'playlist');
       }
 
-      // Set playlist
-      playlist = chosen.slice(); // copy
+      playlist = chosen.slice();
       currentIndex = 0;
 
       if(playlistMode){
-        // Playlist: play first track, attach ended handler to loop through
         const first = playlist[currentIndex];
         setAudioSrc(first);
-        // ensure we handle ended event to advance
         preparePlaylistEndedHandler();
         audio.muted = false;
         try {
           await audio.play();
-          // success — per request: DO NOT show the "Audio started" toast here
           console.log('Playlist playback started, track 0:', first);
           return true;
         } catch(playErr){
@@ -491,10 +529,8 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
           return false;
         }
       } else {
-        // Single: set audio.src to first candidate and play
         const first = playlist[0];
         setAudioSrc(first);
-        // remove any playlist ended handler if one exists
         if(endedListener){
           audio.removeEventListener('ended', endedListener);
           endedListener = null;
@@ -502,7 +538,6 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
         audio.muted = false;
         try {
           await audio.play();
-          // success — DO NOT show "Audio started" toast per request
           console.log('Single-source playback started:', first);
           return true;
         } catch(playErr){
@@ -518,7 +553,6 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     }
   }
 
-  // A helper to "unlock" audio via WebAudio (useful for future in-page sound effects)
   let audioUnlocked = false;
   async function unlockAudioOnGesture(){
     if(audioUnlocked) return;
@@ -527,7 +561,6 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
       if(!AC){ audioUnlocked = true; return; }
       const ctx = new AC();
       if(ctx.state === 'suspended') await ctx.resume();
-      // play a silent buffer to unlock
       const b = ctx.createBuffer(1, 1, 22050);
       const src = ctx.createBufferSource();
       src.buffer = b;
@@ -542,13 +575,10 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
   }
   document.body.addEventListener('pointerdown', unlockAudioOnGesture, {once:true, passive:true});
 
-  // Expose for debugging
   window._bio_audio = audio;
   window._bio_audio_findAndLoad = findAndLoadSources;
   window._bio_audio_playFromUserGesture = playFromUserGesture;
 
-  // If you want an initial click anywhere to try play (but the enter button is preferred),
-  // this will attempt a play if user clicks page after the overlay is hidden
   document.body.addEventListener('click', async function onBodyClick(){
     if(audio.paused && document.getElementById('enterOverlay') && document.getElementById('enterOverlay').classList.contains('hidden')){
       try { await playFromUserGesture(); } catch(e){ console.warn('body click play failed', e); }
@@ -556,9 +586,7 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
   }, {passive:true});
 
 })();
-</script>
 
-<script>
 /* ---------------- Copy links and toasts (unchanged behavior) ---------------- */
 (function copyLinks(){
   const linkTiles = $$('.link');
@@ -626,9 +654,7 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     });
   }
 })();
-</script>
 
-<script>
 /* ---------------- UI toggles, enter sequence (plays audio on enter) ---------------- */
 (function uiFlow(){
   const enterOverlay = document.getElementById('enterOverlay');
@@ -664,8 +690,14 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     enterOverlay.style.pointerEvents = 'none';
     setTimeout(()=>{ enterOverlay.classList.add('hidden'); }, 360);
 
+    // start matrix only if not low-power and not reduced-motion
     if(window.matrixController && !window.matrixController.isRunning()){
-      window.matrixController.start();
+      if(!UI_CONSTRAINTS.lowPower && !UI_CONSTRAINTS.reducedMotion){
+        window.matrixController.start();
+      } else {
+        // keep overlay dims but allow "toggle rain" to explicitly start
+        console.log('matrix suppressed (lowPower/reducedMotion). Use Toggle Rain to force it on.');
+      }
     }
 
     card.classList.add('revealed');
@@ -675,14 +707,12 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     });
 
     try {
-      // This function performs candidate selection + load then plays.
       if(window._bio_audio_playFromUserGesture){
         const ok = await window._bio_audio_playFromUserGesture();
         if(!ok){
           showToastInline('Audio could not be started. See console for details.');
         }
       } else {
-        // Fallback: attempt a simple play on the <audio> element
         const audio = window._bio_audio || document.getElementById('bg-audio');
         try { await audio.play(); } catch(e){ console.warn('Playback attempt failed:', e); showToastInline('Autoplay blocked — interact to start audio.'); }
       }
@@ -696,13 +726,24 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
   if(rainToggle){
     rainToggle.addEventListener('click', e=>{
       e.preventDefault();
-      if(window.matrixController) { window.matrixController.isRunning() ? window.matrixController.stop() : window.matrixController.start(); }
+      if(window.matrixController) {
+        // if suppressed by low-power, allow forced start
+        if(window.matrixController.isRunning()){
+          window.matrixController.stop();
+        } else {
+          if(UI_CONSTRAINTS.lowPower || UI_CONSTRAINTS.reducedMotion){
+            // force start even on low-power (user asked for it)
+            window.matrixController.forceStart();
+            showToastInline('Matrix rain forced on (may affect performance).');
+          } else {
+            window.matrixController.start();
+          }
+        }
+      }
     });
   }
 })();
-</script>
 
-<script>
 /* ---------------- Keyboard quick open ---------------- */
 (function keyboardQuickOpen(){
   window.addEventListener('keydown', e=>{
@@ -716,14 +757,8 @@ const $$ = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
     }
   });
 })();
+
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
